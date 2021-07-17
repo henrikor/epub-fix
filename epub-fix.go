@@ -52,14 +52,17 @@ func main() {
 	matched, _ := regexp.MatchString(`footnote_plugin_reference_`, oldtxt)
 
 	// r := regexp.MustCompile(`(?s)<span class="footnote_referrer"><a role="button" tabindex="0" onkeypress="footnote_moveToReference_\d+_\d+\('footnote_plugin_reference_(\d+_\d+_\d+)'\);"><sup id="footnote_plugin_tooltip_\d+_\d+_\d+" class="footnote_plugin_tooltip_text">\[(\d+)\].*?<span id="footnote_plugin_tooltip_text_\d+_\d+_\d+".*?<span class="footnote_tooltip_continue">Continue reading</span></span></span>`)
-	r := regexp.MustCompile(`(?s)<span class="footnote_referrer"><a role="button" tabindex="0" onkeypress="footnote_moveToReference_\d+_\d+\('footnote_plugin_reference_(\d+_\d+_\d+)'\);"><sup id="footnote_plugin_tooltip_\d+_\d+_\d+" class="footnote_plugin_tooltip_text">\[(\d+)\].*?<span id="footnote_plugin_tooltip_text_(\d+_\d+_\d+)".*?</span></span>`)
-	r2 := regexp.MustCompile(`<a id="footnote_plugin_reference_(\d+_\d+_\d+)" class="footnote_backlink"><span class="footnote_index_arrow">↑</span>(\d+)</a>`)
-	r3 := regexp.MustCompile(`<span class="footnote_tooltip_continue">Continue reading</span>`)
+	r := regexp.MustCompile(`<span class="footnote_tooltip_continue">Continue reading</span>`)
+	r2 := regexp.MustCompile(`(?s)<span class="footnote_referrer"><a role="button" tabindex="0" onkeypress="footnote_moveToReference_\d+_\d+\('footnote_plugin_reference_(\d+_\d+_\d+)'\);"><sup id="footnote_plugin_tooltip_\d+_\d+_\d+" class="footnote_plugin_tooltip_text">\[(\d+)\].*?<span id="footnote_plugin_tooltip_text_(\d+_\d+_\d+)".*?</span></span>`)
+	r3 := regexp.MustCompile(`<a id="footnote_plugin_reference_(\d+_\d+_\d+)" class="footnote_backlink"><span class="footnote_index_arrow">↑</span>(\d+)</a>`)
+	r4 := regexp.MustCompile(`<button class="rtoc_open_close rtoc_open"></button>`)
+
 	// footnote := r.FindString(oldtxt)
 	// newtxt := r.ReplaceAllString(oldtxt, `<span class="footnote_referrer"><a href="#footnote_plugin_reference_$1"><sup id="footnote_plugin_tooltip_$1" class="footnote_plugin_tooltip_text">[$2]</sup></a></span>`)
-	newtxt := r3.ReplaceAllString(oldtxt, ``)
-	newtxt = r.ReplaceAllString(newtxt, `<span class="footnote_referrer"><a href="#footnote_plugin_reference_$1"><sup id="footnote_plugin_tooltip_$1" class="footnote_plugin_tooltip_text">[$2]</sup></a></span>`)
-	newtxt = r2.ReplaceAllString(newtxt, `<a id="footnote_plugin_reference_$1" class="footnote_backlink" href="#footnote_plugin_tooltip_$1"><span class="footnote_index_arrow">↑</span>$2</a>`)
+	newtxt := r.ReplaceAllString(oldtxt, ``)
+	newtxt = r2.ReplaceAllString(newtxt, `<span class="footnote_referrer"><a href="#footnote_plugin_reference_$1"><sup id="footnote_plugin_tooltip_$1" class="footnote_plugin_tooltip_text">[$2]</sup></a></span>`)
+	newtxt = r3.ReplaceAllString(newtxt, `<a id="footnote_plugin_reference_$1" class="footnote_backlink" href="#footnote_plugin_tooltip_$1"><span class="footnote_index_arrow">↑</span>$2</a>`)
+	newtxt = r4.ReplaceAllString(newtxt, ``)
 
 	// color.Info.Println("Footnote: " + footnote)
 
