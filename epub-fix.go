@@ -191,15 +191,36 @@ func main() {
 	if *e != "" {
 		color.Info.Println("ePub fil:", *e)
 		re := regexp.MustCompile(".epub$")
-		newepub = re.ReplaceAllString(*e, "_FIXED.epub")
+		newepub = re.ReplaceAllString(*e, "_rkmg.epub")
 		zipout = "tmpepub"
 		files := unzipEpub(*e, zipout)
+		htmlreg := regexp.MustCompile(`0000_.*xhtml$`)
+		cssreg := regexp.MustCompile(`stylesheet.css`)
 		for _, file := range files {
-			matched, _ := regexp.MatchString(`0000_.*xhtml$`, file)
-			if matched {
-				color.Info.Println("Fant fil: " + file)
+			htmlmatch := htmlreg.MatchString(file)
+			cssmatch := cssreg.MatchString(file)
+			if htmlmatch {
+				color.Info.Println("Fount xhtml file: " + file)
 				xmlfile = file
 			}
+			if cssmatch {
+				color.Info.Println("Fount css file: " + file)
+				oldtxt := read_file(file)
+				newtxt := oldtxt + `
+				.footnote_backlink{
+					font-family: Arial, Helvetica, sans-serif;
+					font-weight: 900;
+				  }
+				  .footnote_rkmg{
+				  border-top: 2px solid;
+				  }
+	  `
+				err := ioutil.WriteFile(file, []byte(newtxt), 0777)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
 		}
 		fix_xml(xmlfile)
 		MkEpub(zipout, newepub)
