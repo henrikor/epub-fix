@@ -64,6 +64,9 @@ func fix_xml(filename string) {
 	r6 := regexp.MustCompile(`(?s)<table class="footnotes_table.*?(<tr class="footnotes_plugin_reference_row">.*)</tbody> </table>`)
 	r7 := regexp.MustCompile(`(?s)<tr class="footnotes_plugin_reference_row">.*?(<a id="footnote_plugin_reference.*?)</td></tr>`)
 	r8 := regexp.MustCompile(`(?s)</th> <td class="footnote_plugin_text">`)
+	r9 := regexp.MustCompile(`<div class="pdfprnt-buttons.*print=print  --></div></div>`)
+	r10 := regexp.MustCompile(`<figure class="wp-block-table.*?>`)
+	r11 := regexp.MustCompile(`</figure>`)
 
 	// footnote := r.FindString(oldtxt)
 	// newtxt := r.ReplaceAllString(oldtxt, `<span class="footnote_referrer"><a href="#footnote_plugin_reference_$1"><sup id="footnote_plugin_tooltip_$1" class="footnote_plugin_tooltip_text">[$2]</sup></a></span>`)
@@ -75,6 +78,9 @@ func fix_xml(filename string) {
 	newtxt = r6.ReplaceAllString(newtxt, `$1`)
 	newtxt = r7.ReplaceAllString(newtxt, `<p class="footnote_rkmg">$1</p>`)
 	newtxt = r8.ReplaceAllString(newtxt, ` `)
+	newtxt = r9.ReplaceAllString(newtxt, ``)
+	newtxt = r10.ReplaceAllString(newtxt, ``)
+	newtxt = r11.ReplaceAllString(newtxt, ``)
 
 	// color.Info.Println("Footnote: " + footnote)
 
@@ -102,12 +108,16 @@ func addFiles(w *zip.Writer, basePath, baseInZip string) {
 		fmt.Println(err)
 	}
 
+	re := regexp.MustCompile(`.*\.pdf$`)
 	for _, file := range files {
 		fmt.Println(basePath + file.Name())
 		if !file.IsDir() {
 			dat, err := ioutil.ReadFile(basePath + file.Name())
 			if err != nil {
 				fmt.Println(err)
+			}
+			if re.MatchString(file.Name()) {
+				continue
 			}
 
 			// Add some files to the archive.
@@ -125,8 +135,9 @@ func addFiles(w *zip.Writer, basePath, baseInZip string) {
 			newBase := basePath + "/" + file.Name() + "/"
 			fmt.Println("Recursing and Adding SubDir: " + file.Name())
 			fmt.Println("Recursing and Adding SubDir: " + newBase)
-
-			addFiles(w, newBase, baseInZip+file.Name()+"/")
+			if !re.MatchString(file.Name()) {
+				addFiles(w, newBase, baseInZip+file.Name()+"/")
+			}
 		}
 	}
 }
